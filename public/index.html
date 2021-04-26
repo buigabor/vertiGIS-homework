@@ -10,6 +10,76 @@
       content="Web site created using create-react-app"
     />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="stylesheet" href="https://js.arcgis.com/4.19/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.19/"></script>
+    <style>
+      html,
+      body,
+      #viewDiv, #root {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+
+    </style>
+    <script>
+      require(["esri/Map", "esri/views/MapView","esri/layers/CSVLayer","esri/tasks/support/Query"], (Map, MapView, CSVLayer,Query) => {
+        const map = new Map({
+          basemap: "topo-vector"
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 4,
+          center: [15, 65] // longitude, latitude
+        });
+
+          const csvLayer = new CSVLayer({
+      url: 'data/homework_data.csv',
+      copyright: "Gabriel",
+      popupTemplate: {
+            title: "{CODE}, {LONGITUDE}",
+          },
+});
+
+async function queryCSV(){
+  let query = new Query({
+    returnGeometry: true
+  });
+// Queries for all the features
+csvLayer.queryFeatures().then(function(results){
+  // prints the array of result graphics to the console
+  const data = results.features
+  data.forEach((point)=>{
+    if(point.attributes.CODE.includes('AT')){
+    console.log(point.attributes)
+    }
+  })
+});
+
+}
+queryCSV()
+
+csvLayer.renderer = {
+  type: "simple", // autocasts as new SimpleRenderer()
+  symbol: {
+          type: "simple-marker",
+          color: "black",
+          outline: {
+            color: "black"
+          },
+          size: '3px'
+        },
+}
+// Add the layer to the map
+map.add(csvLayer);
+      });
+
+
+
+    </script>
     <!--
       manifest.json provides metadata used when your web app is installed on a
       user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
@@ -26,6 +96,7 @@
     -->
     <title>React App</title>
   </head>
+
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
